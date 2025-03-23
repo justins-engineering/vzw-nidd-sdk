@@ -4,10 +4,12 @@ EXTRA_CFLAGS ?=
 EXTRA_LDFLAGS ?=
 INSTALL ?= cp -pPR
 
-INSTALL_BIN_PATH ?= /usr/bin
-INSTALL_INCLUDE_PATH = $(DIR)/include
-INSTALL_LIBRARY_PATH = $(DIR)/lib
-SRC_PATH = $(DIR)/src
+PREFIX ?= /usr/local
+INCLUDE_PATH ?= include
+LIBRARY_PATH ?= lib
+INSTALL_INCLUDE_PATH = $(PREFIX)/$(INCLUDE_PATH)
+INSTALL_LIBRARY_PATH = $(PREFIX)/$(LIBRARY_PATH)
+
 MODULE_PATH = $(DIR)/modules
 
 OPTIMIZATION ?= -O3
@@ -15,7 +17,7 @@ WARNINGS = -Wall -Wextra -Wformat -Winline -Werror=format-security -Wstrict-prot
 	-Wno-missing-field-initializers -pedantic
 
 CFLAGS ?= -fstack-protector-strong -fanalyzer
-LDFLAGS ?= -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie
+LDFLAGS ?= -Wl,-z,relro -Wl,-z,now -Wl,--as-needed
 
 NATIVE ?= 1
 ifeq ($(NATIVE), 1)
@@ -33,61 +35,49 @@ endif
 
 MODULE_CFLAGS += $(OPTIMIZATION) $(arch)
 
-linked_libs = -lc -lpthread -lssl -lcrypto -lcurl -lunit -lnaah64 -lhiredis -lhiredis_ssl
+linked_libs = -lc -lcurl -lnaah64
 
-CFLAGS += $(OPTIMIZATION) -fPIC $(WARNINGS) $(EXTRA_CFLAGS) $(arch) -I$(INSTALL_INCLUDE_PATH)
-LDFLAGS += -L$(DIR) -L$(INSTALL_LIBRARY_PATH) $(linked_libs) $(EXTRA_LDFLAGS)
+CFLAGS += $(OPTIMIZATION) -fPIC $(WARNINGS) $(EXTRA_CFLAGS) $(arch) -I$(DIR)/$(INCLUDE_PATH)
+LDFLAGS += -L$(DIR) -L$(DIR)/$(LIBRARY_PATH) $(linked_libs) $(EXTRA_LDFLAGS)
 
-subdirs= $(addprefix $(SRC_PATH), /db /firmware /json /vzw /curl)
+subdirs = $(addprefix $(DIR), /json /vzw /curl)
 
-VPATH = $(SRC_PATH) $(subdirs) $(INSTALL_INCLUDE_PATH)
+VPATH = $(DIR) $(subdirs) $(DIR)/$(INCLUDE_PATH)
 
-objects = main.o jsmn.o json_helpers.o  request_handler.o firmware_requests.o \
-	redis_connect.o helpers.o vzw_connect.o credentials.o
+objects = jsmn.o json_helpers.o helpers.o vzw_connect.o credentials.o
 
-hiredis_headers = $(addprefix hiredis/, hiredis.h async.h read.h sds.h alloc.h sockcompat.h hiredis_ssl.h adapters/*.h)
+all: libnaah64.a libvznidd.so libvznidd.a
 
-all: libnaah64.a libhiredis.a libhiredis_ssl.a app
+$(DIR)/$(INCLUDE_PATH)/jsmn.h:
+	$(INSTALL) $(MODULE_PATH)/jsmn/jsmn.h $(DIR)/$(INCLUDE_PATH)
 
-$(INSTALL_INCLUDE_PATH)/jsmn.h:
-	$(INSTALL) $(MODULE_PATH)/jsmn/jsmn.h $(INSTALL_INCLUDE_PATH)
-
-$(INSTALL_INCLUDE_PATH)/base64.h:
-	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.h $(INSTALL_INCLUDE_PATH)
-
-$(INSTALL_INCLUDE_PATH)/hiredis/adapters:
-	mkdir -p $(INSTALL_INCLUDE_PATH)/hiredis/adapters
-
-$(INSTALL_INCLUDE_PATH)/hiredis/%.h: | $(INSTALL_INCLUDE_PATH)/hiredis/adapters
-	$(INSTALL) $(subst $(INSTALL_INCLUDE_PATH), $(MODULE_PATH), $(DIR)/$@) $(@D)
+$(DIR)/$(INCLUDE_PATH)/base64.h:
+	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.h $(DIR)/$(INCLUDE_PATH)
 
 libnaah64.a:
 	$(MAKE) -C $(MODULE_PATH)/nibble-and-a-half libnaah64.a CFLAGS='$(MODULE_CFLAGS)'
-	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/libnaah64.a $(INSTALL_LIBRARY_PATH)
+	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/libnaah64.a $(DIR)/$(LIBRARY_PATH)
 
-libhiredis.a:
-	$(MAKE) -C $(MODULE_PATH)/hiredis libhiredis.a DEBUG_FLAGS='' CFLAGS='$(MODULE_CFLAGS)'
-	$(INSTALL) $(MODULE_PATH)/hiredis/libhiredis.a $(INSTALL_LIBRARY_PATH)
+libvznidd.so: $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
+	$(CC) -shared $(CFLAGS) $(objects) -o $(DIR)/libvznidd.so $(LDFLAGS)
 
-libhiredis_ssl.a:
-	$(MAKE) -C $(MODULE_PATH)/hiredis libhiredis_ssl.a DEBUG_FLAGS='' USE_SSL=1 CFLAGS='$(MODULE_CFLAGS)'
-	$(INSTALL) $(MODULE_PATH)/hiredis/libhiredis_ssl.a $(INSTALL_LIBRARY_PATH)
+libvznidd.a: $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
+	$(AR) rcs -v --record-libdeps="$(linked_libs)" libvznidd.a $(objects)
 
-app: config/vzw_secrets.h $(addprefix $(INSTALL_INCLUDE_PATH)/, jsmn.h base64.h $(hiredis_headers)) $(objects)
-	$(CC) $(CFLAGS) $(objects) -o $(DIR)/app $(LDFLAGS)
-	chmod +x $(DIR)/app
+sample: include/vzw_secrets.h $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
+	$(CC) $(CFLAGS) $(objects) -o $(DIR)/sample $(LDFLAGS)
+	chmod +x $(DIR)/sample
 
-install: app
-	cp $(DIR)/app $(INSTALL_BIN_PATH)/loft
+install:
+	$(INSTALL) libvznidd.a $(INSTALL_LIBRARY_PATH)/libvznidd.a
+	$(INSTALL) libvznidd.so $(INSTALL_LIBRARY_PATH)/libvznidd.so
 
-# This shouldn't depend on phony targets but they're order-only and it works for now
-%.o: %.c | libnaah64.a libhiredis.a libhiredis_ssl.a
+%.o: %.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
-	rm -rf $(DIR)/app $(objects) $(DIR)/lib/*.a $(DIR)/include/jsmn.h \
-		$(DIR)/include/base64.h $(DIR)/include/hiredis
+	rm -rf libvznidd.o libvznidd.a libvznidd.so $(DIR)/sample $(objects) \
+		$(DIR)/lib/*.a $(DIR)/include/jsmn.h $(DIR)/include/base64.h
 	$(MAKE) -C $(MODULE_PATH)/nibble-and-a-half clean
-	$(MAKE) -C $(MODULE_PATH)/hiredis clean
 
-.PHONY: clean libnaah64.a libhiredis.a libhiredis_ssl.a install
+.PHONY: clean libnaah64.a install
