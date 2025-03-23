@@ -46,7 +46,6 @@ static CURL *registered_callback_listeners(
 int get_registered_callback_listeners(
     const char *account_name, char *vzw_auth_token, char *vzw_m2m_token, CharBuff *response_data
 ) {
-  char *ptr;
   CURLcode res;
   struct curl_slist *headers = NULL;
   CharBuff header_data = {NULL, 0};

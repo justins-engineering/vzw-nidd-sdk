@@ -10,3 +10,4 @@ include/*
 *.o
 *.a
 *.so
+base64.c

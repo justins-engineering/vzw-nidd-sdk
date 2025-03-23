@@ -35,18 +35,18 @@ endif
 
 MODULE_CFLAGS += $(OPTIMIZATION) $(arch)
 
-linked_libs = -lc -lcurl -lnaah64
+linked_libs = -lc -lcurl
 
 CFLAGS += $(OPTIMIZATION) -fPIC $(WARNINGS) $(EXTRA_CFLAGS) $(arch) -I$(DIR)/$(INCLUDE_PATH)
-LDFLAGS += -L$(DIR) -L$(DIR)/$(LIBRARY_PATH) $(linked_libs) $(EXTRA_LDFLAGS)
+LDFLAGS += -L$(DIR) $(linked_libs) $(EXTRA_LDFLAGS)
 
 subdirs = $(addprefix $(DIR), /json /vzw /curl)
 
 VPATH = $(DIR) $(subdirs) $(DIR)/$(INCLUDE_PATH)
 
-objects = jsmn.o json_helpers.o helpers.o vzw_connect.o credentials.o
+objects = jsmn.o json_helpers.o helpers.o vzw_connect.o credentials.o base64.o
 
-all: libnaah64.a libvznidd.so libvznidd.a
+all: libvznidd.so libvznidd.a
 
 $(DIR)/$(INCLUDE_PATH)/jsmn.h:
 	$(INSTALL) $(MODULE_PATH)/jsmn/jsmn.h $(DIR)/$(INCLUDE_PATH)
@@ -54,15 +54,14 @@ $(DIR)/$(INCLUDE_PATH)/jsmn.h:
 $(DIR)/$(INCLUDE_PATH)/base64.h:
 	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.h $(DIR)/$(INCLUDE_PATH)
 
-libnaah64.a:
-	$(MAKE) -C $(MODULE_PATH)/nibble-and-a-half libnaah64.a CFLAGS='$(MODULE_CFLAGS)'
-	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/libnaah64.a $(DIR)/$(LIBRARY_PATH)
+$(DIR)/base64.c:
+	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.c $(DIR)
 
 libvznidd.so: $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
 	$(CC) -shared $(CFLAGS) $(objects) -o $(DIR)/libvznidd.so $(LDFLAGS)
 
 libvznidd.a: $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
-	$(AR) rcs -v --record-libdeps="$(linked_libs)" libvznidd.a $(objects)
+	$(AR) rcs --record-libdeps="$(linked_libs)" libvznidd.a $(objects)
 
 sample: include/vzw_secrets.h $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
 	$(CC) $(CFLAGS) $(objects) -o $(DIR)/sample $(LDFLAGS)
@@ -77,7 +76,6 @@ install:
 
 clean:
 	rm -rf libvznidd.o libvznidd.a libvznidd.so $(DIR)/sample $(objects) \
-		$(DIR)/lib/*.a $(DIR)/include/jsmn.h $(DIR)/include/base64.h
-	$(MAKE) -C $(MODULE_PATH)/nibble-and-a-half clean
+		$(DIR)/include/jsmn.h $(DIR)/include/base64.h $(DIR)/base64.c
 
-.PHONY: clean libnaah64.a install
+.PHONY: clean install
