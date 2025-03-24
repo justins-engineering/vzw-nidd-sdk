@@ -44,7 +44,8 @@ subdirs = $(addprefix $(DIR), /json /vzw /curl)
 
 VPATH = $(DIR) $(subdirs) $(DIR)/$(INCLUDE_PATH)
 
-objects = jsmn.o json_helpers.o helpers.o credentials.o base64.o nidd.o registered_callback_listeners.o
+objects = jsmn.o json_helpers.o helpers.o credentials.o base64.o nidd.o \
+	registered_callback_listeners.o device_list.o
 
 all: libvznidd.so libvznidd.a
 

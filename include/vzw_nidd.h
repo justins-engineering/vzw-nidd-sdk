@@ -43,4 +43,8 @@ int vzw_send_nidd_data(
     char *message, VZWResponseData *response_data
 );
 
+int vzw_global_device_list(
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data
+);
+
 #endif // VZW_NIDD_H

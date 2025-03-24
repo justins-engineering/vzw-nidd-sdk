@@ -1,12 +1,7 @@
 #define JSMN_HEADER
 
 #include <base64.h>
-#include <curl/curl.h>
-#include <curl/header.h>
-#include <definitions.h>
 #include <jsmn.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "../curl/helpers.h"
 #include "../json/json_helpers.h"
@@ -69,10 +64,13 @@ int vzw_get_auth_token(const char *auth_keys, char *auth_token) {
     goto fail;
   }
 
+  PRINTDBG("\n%s\n", response_data.response);
+
   res = extract_token(response_data.response, auth_token, "access_token");
   if (res != CURLE_OK) {
     PRINTERR("Failed to get VZW Auth Token");
   }
+  PRINTDBG("\n%s\n", auth_token);
 
 fail:
   free(header_data.response);
@@ -118,7 +116,7 @@ int vzw_get_session_token(
 
   curl_easy_setopt(curl, CURLOPT_POST, 1L);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_field);
-  curl_easy_setopt(curl, CURLOPT_URL, VZW_M2M_REST_API "/session/login");
+  curl_easy_setopt(curl, CURLOPT_URL, VZW_M2M_REST_API_V1 "/session/login");
   curl_easy_default_opts(curl, &header_data, &response_data, headers);
 
   res = curl_easy_perform(curl);

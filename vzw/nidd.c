@@ -1,10 +1,4 @@
 #include <base64.h>
-#include <curl/curl.h>
-#include <curl/header.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "../curl/helpers.h"
 #include "api_fields.h"
@@ -12,7 +6,6 @@
 #define DEVICE_ID_FIELD_START "\"deviceIds\":[{\"id\":\""
 #define DEVICE_ID_FIELD_END "\",\"kind\":\"MDN\"}],"
 
-#define ACCOUNT_NAME_FIELD "\"accountName\":\""
 #define MDT_FIELD "\"maximumDeliveryTime\":\""
 #define MESSAGE_FIELD "\"message\":\""
 
@@ -72,7 +65,7 @@ int vzw_send_nidd_data(
   // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
   curl_easy_setopt(curl, CURLOPT_POST, 1L);
   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_field);
-  curl_easy_setopt(curl, CURLOPT_URL, VZW_M2M_REST_API "/devices/nidd/message");
+  curl_easy_setopt(curl, CURLOPT_URL, VZW_M2M_REST_API_V1 "/devices/nidd/message");
   curl_easy_default_opts(curl, &header_data, response_data, headers);
 
   res = curl_easy_perform(curl);

@@ -1,11 +1,3 @@
-#include <base64.h>
-#include <curl/curl.h>
-#include <curl/header.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../curl/helpers.h"
 #include "api_fields.h"
 
