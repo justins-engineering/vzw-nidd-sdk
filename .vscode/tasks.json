@@ -4,7 +4,7 @@
     {
       "type": "shell",
       "label": "Build",
-      "command": "${workspaceFolder}/build.sh",
+      "command": "make",
       "args": [],
       "options": {},
       "problemMatcher": [],
@@ -12,73 +12,7 @@
         "kind": "build",
         "isDefault": true
       },
-      "detail": "Run Docker build script"
-    },
-    {
-      "type": "shell",
-      "label": "Docker Run",
-      "dependsOn": "Docker image prune",
-      "dependsOrder": "sequence",
-      "command": "docker",
-      "args": [
-        "run",
-        "--rm",
-        "-p",
-        "80:80",
-        "--name",
-        "loft_dev",
-        "loft:dev"
-      ],
-      "options": {},
-      "group": {
-        "kind": "test",
-        "isDefault": true
-      },
-      "detail": "docker image prune & run loft:dev",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "Docker buildx prune",
-      "command": "docker",
-      "args": [
-        "buildx",
-        "prune",
-        "-f"
-      ],
-      "options": {},
-      "group": "none",
-      "detail": "Docker buildx prune",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "Docker image prune",
-      "command": "docker",
-      "args": [
-        "image",
-        "prune",
-        "-f"
-      ],
-      "options": {},
-      "group": "none",
-      "detail": "Docker image prune",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "Docker container bash",
-      "command": "docker",
-      "args": [
-        "exec",
-        "-it",
-        "iots_dev",
-        "/bin/bash"
-      ],
-      "options": {},
-      "group": "none",
-      "detail": "Docker interactive bash shell",
-      "problemMatcher": []
-    },
+      "detail": "make libvznidd.a and libvznidd.so"
+    }
   ]
 }

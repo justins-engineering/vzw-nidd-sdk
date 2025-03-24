@@ -1,11 +1,7 @@
-build.log
 sample
-lib/*
-usr/*
-share/*
-include/*
-!include/definitions.h
-!include/vzw_secrets.h.example
+include/base64.h
+include/jsmn.h
+include/vzw_secrets.h
 
 *.o
 *.a

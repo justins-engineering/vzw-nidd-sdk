@@ -13,7 +13,7 @@
 #define OAUTH2_TOKEN_FIELD "Authorization:Basic "
 
 /** Base64 encoding is deterministic, so we know the length ahead of time */
-#define OAUTH2_TOKEN_FIELD_SIZE sizeof(OAUTH2_TOKEN_FIELD) + BASE64LEN(strlen(vzw_auth_keys))
+#define OAUTH2_TOKEN_FIELD_SIZE sizeof(OAUTH2_TOKEN_FIELD) + BASE64LEN(strlen(auth_keys))
 
 #define ACCESS_TOKEN_FIELD "Authorization:Bearer "
 #define ACCESS_TOKEN_FIELD_SIZE(t) sizeof(ACCESS_TOKEN_FIELD) + strlen(t)

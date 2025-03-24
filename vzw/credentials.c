@@ -1,5 +1,3 @@
-#include "credentials.h"
-
 #define JSMN_HEADER
 
 #include <base64.h>
@@ -44,7 +42,7 @@ static int extract_token(const char *src, char *dst, const char *token) {
   return 0;
 }
 
-int get_vzw_auth_token(const char *vzw_auth_keys, char *vzw_auth_token) {
+int vzw_get_auth_token(const char *auth_keys, char *auth_token) {
   char *ptr;
   CURL *curl = curl_easy_init();
   CURLcode res;
@@ -54,7 +52,7 @@ int get_vzw_auth_token(const char *vzw_auth_keys, char *vzw_auth_token) {
   char auth_token_field[OAUTH2_TOKEN_FIELD_SIZE];
 
   ptr = stpcpy(auth_token_field, OAUTH2_TOKEN_FIELD);
-  (void)base64(vzw_auth_keys, strlen(vzw_auth_keys), ptr);
+  (void)base64(auth_keys, strlen(auth_keys), ptr);
 
   headers = curl_slist_append(headers, ACCEPT_JSON);
   headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
@@ -71,7 +69,7 @@ int get_vzw_auth_token(const char *vzw_auth_keys, char *vzw_auth_token) {
     goto fail;
   }
 
-  res = extract_token(response_data.response, vzw_auth_token, "access_token");
+  res = extract_token(response_data.response, auth_token, "access_token");
   if (res != CURLE_OK) {
     PRINTERR("Failed to get VZW Auth Token");
   }
@@ -91,8 +89,8 @@ fail:
 #define LOGIN_FIELD_SIZE(uname, password) \
   sizeof(USERNAME_FIELD) + sizeof(PASSWORD_FIELD) + strlen(uname) + strlen(password)
 
-int get_vzw_m2m_token(
-    const char *username, const char *password, const char *vzw_auth_token, char *vzw_m2m_token
+int vzw_get_session_token(
+    const char *username, const char *password, const char *auth_token, char *session_token
 ) {
   char *ptr;
   CURL *curl = curl_easy_init();
@@ -102,10 +100,10 @@ int get_vzw_m2m_token(
   CharBuff response_data = {NULL, 0};
 
   char post_field[LOGIN_FIELD_SIZE(username, password)];
-  char access_token_field[ACCESS_TOKEN_FIELD_SIZE(vzw_auth_token)];
+  char access_token_field[ACCESS_TOKEN_FIELD_SIZE(auth_token)];
 
   ptr = stpcpy(access_token_field, ACCESS_TOKEN_FIELD);
-  (void)stpcpy(ptr, vzw_auth_token);
+  (void)stpcpy(ptr, auth_token);
 
   headers = curl_slist_append(headers, CONTENT_TYPE_JSON);
   headers = curl_slist_append(headers, ACCEPT_JSON);
@@ -129,7 +127,7 @@ int get_vzw_m2m_token(
     goto fail;
   }
 
-  res = extract_token(response_data.response, vzw_m2m_token, "sessionToken");
+  res = extract_token(response_data.response, session_token, "sessionToken");
   if (res != CURLE_OK) {
     PRINTERR("Failed to get VZW M2M Token");
   }
