@@ -1,24 +1,14 @@
 /** @file vzw_nidd.h
- *  @brief Macro and function defines for the vzw thingspace credentials.
+ *  @brief Macro and function defines for the vzw thingspace API.
  */
 
 #ifndef VZW_NIDD_H
 #define VZW_NIDD_H
 
-#include <stdio.h>
-
-#define PRINTDBG(f_, ...) fprintf(stderr, "%s" f_ "%s", "\033[38;5;87m", ##__VA_ARGS__, "\033[0m\n")
-
-#define PRINTERR(f_, ...) fprintf(stderr, "%s" f_ "%s", "\033[38;5;9m", ##__VA_ARGS__, "\033[0m\n")
-
-#define PRINTALRT(f_, ...) fprintf(stderr, "%s" f_ "%s", "\033[38;5;226m", ##__VA_ARGS__, "\033[0m\n")
-
-#define PRINTSUCCES(f_, ...) fprintf(stderr, "%s" f_ "%s", "\033[38;5;82m", ##__VA_ARGS__, "\033[0m\n")
-
-typedef struct CharBuff {
+typedef struct VZWResponseData {
   char *response;
-  size_t size;
-} CharBuff;
+  unsigned long size;
+} VZWResponseData;
 
 /** @fn int vzw_get_auth_token(const char *username, const char *password, const
 *   char *auth_keys, char *auth_token)
@@ -35,22 +25,22 @@ int vzw_get_session_token(
 );
 
 int vzw_get_registered_callback_listeners(
-  const char *account_name, char *auth_token, char *session_token, CharBuff *response_data
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data
 );
 
 int vzw_set_registered_callback_listeners(
-  const char *account_name, char *auth_token, char *session_token, CharBuff *response_data,
-  char *service_name, char *url
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data,
+    char *service_name, char *url
 );
 
 int vzw_delete_registered_callback_listeners(
-  const char *account_name, char *auth_token, char *session_token, CharBuff *response_data,
-  char *service_name
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data,
+    char *service_name
 );
 
 int vzw_send_nidd_data(
-  const char *account_name, char *auth_token, char *session_token, char *mdn, char *mdt,
-  char *message, CharBuff *response_data
+    const char *account_name, char *auth_token, char *session_token, char *mdn, char *mdt,
+    char *message, VZWResponseData *response_data
 );
 
 #endif // VZW_NIDD_H

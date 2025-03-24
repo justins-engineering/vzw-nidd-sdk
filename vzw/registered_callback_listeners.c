@@ -10,8 +10,8 @@
 #include "api_fields.h"
 
 static CURL *registered_callback_listeners(
-    const char *account_name, char *auth_token, char *session_token, CharBuff *header_data,
-    CharBuff *response_data, struct curl_slist *headers
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *header_data,
+    VZWResponseData *response_data, struct curl_slist *headers
 ) {
   char *ptr;
   CURL *curl = curl_easy_init();
@@ -41,11 +41,11 @@ static CURL *registered_callback_listeners(
 }
 
 int vzw_get_registered_callback_listeners(
-    const char *account_name, char *auth_token, char *session_token, CharBuff *response_data
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data
 ) {
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
 
   CURL *curl = registered_callback_listeners(
       account_name, auth_token, session_token, &header_data, response_data, headers
@@ -66,13 +66,13 @@ fail:
 }
 
 int vzw_set_registered_callback_listeners(
-    const char *account_name, char *auth_token, char *session_token, CharBuff *response_data,
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data,
     char *service_name, char *url
 ) {
   char *ptr;
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
 
   char post_field[sizeof("{\"name\":\"\",\"url\":\"\"}") + strlen(service_name) + strlen(url)];
 
@@ -106,13 +106,13 @@ fail:
 }
 
 int vzw_delete_registered_callback_listeners(
-    const char *account_name, char *auth_token, char *session_token, CharBuff *response_data,
+    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data,
     char *service_name
 ) {
   char *ptr;
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
 
   char url[VZW_CALLBACKS_API_LEN(account_name) + sizeof("/name/") + strlen(service_name) - 1];
 

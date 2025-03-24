@@ -7,7 +7,7 @@ size_t stack_mem_write_callback(
     const char *buffer, const size_t size, const size_t nitems, const void *userdata
 ) {
   size_t realsize = size * nitems;
-  CharBuff *mem = (CharBuff *)userdata;
+  VZWResponseData *mem = (VZWResponseData *)userdata;
 
   memcpy(&(mem->response[mem->size]), buffer, realsize);
   mem->size += realsize;
@@ -19,7 +19,7 @@ size_t heap_mem_write_callback(
     const char *buffer, const size_t size, const size_t nitems, const void *userdata
 ) {
   size_t realsize = size * nitems;
-  CharBuff *mem = (CharBuff *)userdata;
+  VZWResponseData *mem = (VZWResponseData *)userdata;
 
   char *res = realloc(mem->response, mem->size + realsize + 1);
   if (res == NULL) {
@@ -35,7 +35,8 @@ size_t heap_mem_write_callback(
 }
 
 void curl_easy_default_opts(
-    CURL *curl, CharBuff *header_data, CharBuff *response_data, struct curl_slist *headers
+    CURL *curl, VZWResponseData *header_data, VZWResponseData *response_data,
+    struct curl_slist *headers
 ) {
   //** NOSIGNAL flag required if multithereaded */
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);

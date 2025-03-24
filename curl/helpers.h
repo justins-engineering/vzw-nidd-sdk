@@ -22,6 +22,7 @@ size_t heap_mem_write_callback(
 );
 
 void curl_easy_default_opts(
-    CURL *curl, CharBuff *header_data, CharBuff *response_data, struct curl_slist *headers
+    CURL *curl, VZWResponseData *header_data, VZWResponseData *response_data,
+    struct curl_slist *headers
 );
 #endif  // HELPERS_H

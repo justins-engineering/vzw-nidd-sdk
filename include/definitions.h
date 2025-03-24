@@ -13,9 +13,9 @@
 #define PRINTSUCCES(f_, ...) \
   fprintf(stderr, "%s" f_ "%s", "\033[38;5;82m", ##__VA_ARGS__, "\033[0m\n")
 
-typedef struct CharBuff {
+typedef struct VZWResponseData {
   char *response;
-  size_t size;
-} CharBuff;
+  unsigned long size;
+} VZWResponseData;
 
 #endif  // DEFINITIONS_H

@@ -27,13 +27,13 @@
 
 int vzw_send_nidd_data(
     const char *account_name, char *auth_token, char *session_token, char *mdn, char *mdt,
-    char *message, CharBuff *response_data
+    char *message, VZWResponseData *response_data
 ) {
   char *ptr;
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
 
   if (BASE64LEN(strlen(message)) > MAX_MESSAGE_SIZE) {
     PRINTERR("NIDD message length too large");

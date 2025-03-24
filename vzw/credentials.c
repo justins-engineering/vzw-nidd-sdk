@@ -47,8 +47,8 @@ int vzw_get_auth_token(const char *auth_keys, char *auth_token) {
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
-  CharBuff response_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
+  VZWResponseData response_data = {NULL, 0};
   char auth_token_field[OAUTH2_TOKEN_FIELD_SIZE];
 
   ptr = stpcpy(auth_token_field, OAUTH2_TOKEN_FIELD);
@@ -96,8 +96,8 @@ int vzw_get_session_token(
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  CharBuff header_data = {NULL, 0};
-  CharBuff response_data = {NULL, 0};
+  VZWResponseData header_data = {NULL, 0};
+  VZWResponseData response_data = {NULL, 0};
 
   char post_field[LOGIN_FIELD_SIZE(username, password)];
   char access_token_field[ACCESS_TOKEN_FIELD_SIZE(auth_token)];
