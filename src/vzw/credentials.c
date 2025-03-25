@@ -23,14 +23,9 @@ static int extract_token(const char *src, char *dst, const char *token) {
   }
 
   while (t < ret) {
-    size_t token_len = (size_t)(tokens[t + 1].end - tokens[t + 1].start);
     if (jsoneq(src, &tokens[t], token)) {
-      memcpy(dst, (src + tokens[t + 1].start), token_len);
-      dst[token_len] = '\0';
-
-      PRINTDBG(
-          "token: %.*s, len: %d\n", (int)token_len, (src + tokens[t + 1].start), (int)token_len
-      );
+      memcpy(dst, (src + tokens[t + 1].start), (size_t)(tokens[t + 1].end - tokens[t + 1].start));
+      dst[(tokens[t + 1].end - tokens[t + 1].start)] = '\0';
     } else if (jsoneq(src, &tokens[t], "error") || jsoneq(src, &tokens[t], "errorCode")) {
       PRINTERR(
           "Error \"%.*s\": %.*s", tokens[t + 1].end - tokens[t + 1].start,
@@ -71,13 +66,10 @@ int vzw_get_auth_token(const char *auth_keys, char *auth_token) {
     goto fail;
   }
 
-  PRINTDBG("\n%s\n", response_data.response);
-
   res = extract_token(response_data.response, auth_token, "access_token");
   if (res != CURLE_OK) {
     PRINTERR("Failed to get VZW Auth Token");
   }
-  PRINTDBG("\n%s\n", auth_token);
 
 fail:
   free(header_data.response);
