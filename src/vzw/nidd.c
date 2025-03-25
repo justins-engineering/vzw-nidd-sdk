@@ -1,4 +1,7 @@
 #include <base64.h>
+#include <stdlib.h>
+#include <string.h>
+#include <vzw/nidd.h>
 
 #include "../curl/helpers.h"
 #include "api_fields.h"
@@ -20,13 +23,13 @@
 
 int vzw_send_nidd_data(
     const char *account_name, char *auth_token, char *session_token, char *mdn, char *mdt,
-    char *message, VZWResponseData *response_data
+    char *message, void *response_data
 ) {
   char *ptr;
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  VZWResponseData header_data = {NULL, 0};
+  CurlRecvData header_data = {NULL, 0};
 
   if (BASE64LEN(strlen(message)) > MAX_MESSAGE_SIZE) {
     PRINTERR("NIDD message length too large");

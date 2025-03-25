@@ -2,9 +2,11 @@
 
 #include <base64.h>
 #include <jsmn.h>
+#include <stdlib.h>
 
 #include "../curl/helpers.h"
 #include "../json/json_helpers.h"
+#include "../log.h"
 #include "api_fields.h"
 
 static int extract_token(const char *src, char *dst, const char *token) {
@@ -23,7 +25,12 @@ static int extract_token(const char *src, char *dst, const char *token) {
   while (t < ret) {
     size_t token_len = (size_t)(tokens[t + 1].end - tokens[t + 1].start);
     if (jsoneq(src, &tokens[t], token)) {
-      memcpy((void *)dst, (void *)(src + tokens[t + 1].start), token_len);
+      memcpy(dst, (src + tokens[t + 1].start), token_len);
+      dst[token_len] = '\0';
+
+      PRINTDBG(
+          "token: %.*s, len: %d\n", (int)token_len, (src + tokens[t + 1].start), (int)token_len
+      );
     } else if (jsoneq(src, &tokens[t], "error") || jsoneq(src, &tokens[t], "errorCode")) {
       PRINTERR(
           "Error \"%.*s\": %.*s", tokens[t + 1].end - tokens[t + 1].start,
@@ -42,8 +49,8 @@ int vzw_get_auth_token(const char *auth_keys, char *auth_token) {
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  VZWResponseData header_data = {NULL, 0};
-  VZWResponseData response_data = {NULL, 0};
+  CurlRecvData header_data = {NULL, 0};
+  CurlRecvData response_data = {NULL, 0};
   char auth_token_field[OAUTH2_TOKEN_FIELD_SIZE];
 
   ptr = stpcpy(auth_token_field, OAUTH2_TOKEN_FIELD);
@@ -94,8 +101,8 @@ int vzw_get_session_token(
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  VZWResponseData header_data = {NULL, 0};
-  VZWResponseData response_data = {NULL, 0};
+  CurlRecvData header_data = {NULL, 0};
+  CurlRecvData response_data = {NULL, 0};
 
   char post_field[LOGIN_FIELD_SIZE(username, password)];
   char access_token_field[ACCESS_TOKEN_FIELD_SIZE(auth_token)];

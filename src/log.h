@@ -13,9 +13,4 @@
 #define PRINTSUCCES(f_, ...) \
   fprintf(stderr, "%s" f_ "%s", "\033[38;5;82m", ##__VA_ARGS__, "\033[0m\n")
 
-typedef struct VZWResponseData {
-  char *response;
-  unsigned long size;
-} VZWResponseData;
-
 #endif  // DEFINITIONS_H

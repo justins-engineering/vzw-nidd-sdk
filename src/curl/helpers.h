@@ -3,7 +3,13 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 #include <curl/curl.h>
-#include <definitions.h>
+
+#include "../log.h"
+
+typedef struct CurlRecvData {
+  char *response;
+  unsigned long size;
+} CurlRecvData;
 
 /** @fn const size_t stack_mem_write_callback(const char *buffer, const size_t
  * size, size_t nitems, const void *userdata);
@@ -22,7 +28,6 @@ size_t heap_mem_write_callback(
 );
 
 void curl_easy_default_opts(
-    CURL *curl, VZWResponseData *header_data, VZWResponseData *response_data,
-    struct curl_slist *headers
+    CURL *curl, void *header_data, void *response_data, struct curl_slist *headers
 );
 #endif  // HELPERS_H

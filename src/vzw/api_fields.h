@@ -5,12 +5,6 @@
 #ifndef API_FIELDS_H
 #define API_FIELDS_H
 
-#include <curl/curl.h>
-#include <curl/header.h>
-#include <definitions.h>
-#include <stdlib.h>
-#include <string.h>
-
 #define CONTENT_TYPE_JSON "Content-Type:application/json"
 #define ACCEPT_JSON "Accept:application/json"
 

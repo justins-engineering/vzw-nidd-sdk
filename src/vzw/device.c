@@ -1,16 +1,20 @@
+#include <stdlib.h>
+#include <string.h>
+#include <vzw/device.h>
+
 #include "../curl/helpers.h"
 #include "api_fields.h"
 
 #define ACCOUNT_NAME_FIELD_SIZE(aname) sizeof(ACCOUNT_NAME_FIELD) + strlen(aname) + 3
 
 int vzw_global_device_list(
-    const char *account_name, char *auth_token, char *session_token, VZWResponseData *response_data
+    const char *account_name, char *auth_token, char *session_token, void *response_data
 ) {
   char *ptr;
   CURL *curl = curl_easy_init();
   CURLcode res;
   struct curl_slist *headers = NULL;
-  VZWResponseData header_data = {NULL, 0};
+  CurlRecvData header_data = {NULL, 0};
 
   char post_field[ACCOUNT_NAME_FIELD_SIZE(account_name)];
   char access_token_field[ACCESS_TOKEN_FIELD_SIZE(auth_token)];

@@ -9,6 +9,7 @@ INCLUDE_PATH ?= include
 LIBRARY_PATH ?= lib
 INSTALL_INCLUDE_PATH = $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH = $(PREFIX)/$(LIBRARY_PATH)
+SRC_PATH = $(DIR)/src
 
 MODULE_PATH = $(DIR)/modules
 
@@ -38,14 +39,13 @@ MODULE_CFLAGS += $(OPTIMIZATION) $(arch)
 linked_libs = -lc -lcurl
 
 CFLAGS += $(OPTIMIZATION) -fPIC $(WARNINGS) $(EXTRA_CFLAGS) $(arch) -I$(DIR)/$(INCLUDE_PATH)
-LDFLAGS += -L$(DIR) $(linked_libs) $(EXTRA_LDFLAGS)
 
-subdirs = $(addprefix $(DIR), /json /vzw /curl)
+subdirs = $(addprefix $(SRC_PATH), /json /vzw /curl)
 
-VPATH = $(DIR) $(subdirs) $(DIR)/$(INCLUDE_PATH)
+VPATH = $(SRC_PATH) $(subdirs) $(DIR)/$(INCLUDE_PATH)
 
 objects = jsmn.o json_helpers.o helpers.o credentials.o base64.o nidd.o \
-	registered_callback_listeners.o device_list.o
+	registered_callback_listeners.o device.o
 
 all: libvznidd.so libvznidd.a
 
@@ -55,8 +55,9 @@ $(DIR)/$(INCLUDE_PATH)/jsmn.h:
 $(DIR)/$(INCLUDE_PATH)/base64.h:
 	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.h $(DIR)/$(INCLUDE_PATH)
 
-$(DIR)/base64.c:
-	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.c $(DIR)
+base64.o:
+	$(INSTALL) $(MODULE_PATH)/nibble-and-a-half/base64.c $(SRC_PATH)
+	$(CC) -c $(CFLAGS) -o base64.o $(SRC_PATH)/base64.c
 
 libvznidd.so: $(addprefix $(DIR)/$(INCLUDE_PATH)/, jsmn.h base64.h) $(objects)
 	$(CC) -shared $(CFLAGS) $(objects) -o $(DIR)/libvznidd.so $(LDFLAGS)
@@ -77,6 +78,6 @@ install:
 
 clean:
 	rm -rf libvznidd.o libvznidd.a libvznidd.so $(DIR)/sample $(objects) \
-		$(DIR)/include/jsmn.h $(DIR)/include/base64.h $(DIR)/base64.c
+		$(DIR)/include/jsmn.h $(DIR)/include/base64.h $(DIR)/src/base64.c
 
 .PHONY: clean install
